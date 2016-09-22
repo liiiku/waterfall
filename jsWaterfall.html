@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>瀑布流</title>
+    <style>
+        *{ margin: 0; padding: 0;}
+        #main{ position: relative;}
+        .box{ /* 这里设置每个图片的间距的时候，不用margin而用padding，因为在js中用offsetHeight获取高度的时候，可以将padding值也获取到 */padding: 15px 0 0 15px; float: left;}
+        .pic{ padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 0 5px #ccc;}
+        .pic img{ width: 165px; height: auto;}
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div class="box">
+            <div class="pic">
+                <img src="img/0.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/1.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/2.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/3.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/4.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/5.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/6.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/7.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/8.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/9.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/10.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/11.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/12.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/13.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/14.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/15.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/16.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/17.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/18.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/19.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/20.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/21.jpg" alt="pic"/>
+            </div>
+        </div>
+        <div class="box">
+            <div class="pic">
+                <img src="img/22.jpg" alt="pic"/>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    window.onload = function() {
+        waterfall('main','box');
+        var dataInt = {'data':[{'src':'35.jpg'},{'src':'36.jpg'},{'src':'37.jpg'},{'src':'38.jpg'}]};
+
+        window.onscroll = function() {
+            if(checkScrollSlide) {
+                var oParent = document.getElementById('main');
+                //将数据块渲染到页面中
+                for(var i=0 ; i<dataInt.data.length ; i++) {
+                    var oBox = document.createElement('div');
+                    oBox.className = 'box';
+                    oParent.appendChild(oBox);
+                    var oPic = document.createElement('div');
+                    oPic.className = 'pic';
+                    oBox.appendChild(oPic);
+                    var oImg = document.createElement('img');
+                    oImg.src = 'img/' + dataInt.data[i].src;
+                    oPic.appendChild(oImg);
+                }
+                waterfall('main','box');
+            }
+        }
+    };
+    function waterfall(parent,box) {
+        //将box全部取出来
+        var oParent = document.getElementById(parent);
+        var oBoxs = getByClass(oParent,box);
+        //计算整个页面显示的列数(页面宽/box宽)
+        var oBoxW = oBoxs[0].offsetWidth;
+        var cols = Math.floor(document.documentElement.clientWidth / oBoxW);
+        //设置main的宽度
+        oParent.style.cssText = 'width:' + oBoxW*cols + 'px;margin:0 auto;';
+        //存放每一列高度的数组
+        var hArr = []; //最初这个数组放的是第一行图片的高，但是是要随时修改的，每在一张图片下面添加一张图片后要更改这一列的高度
+        for(var i=0 ; i<oBoxs.length ; i++) {
+            if(i<cols) {
+                hArr.push(oBoxs[i].offsetHeight);
+            } else {
+                var minH = Math.min.apply(null,hArr);
+                var index = getMinhIndex(hArr,minH);
+                //第二行第一张图片放在第一行最短图片的下面
+                oBoxs[i].style.position = 'absolute';
+                oBoxs[i].style.top = minH + 'px';
+                oBoxs[i].style.left = oBoxW*index + 'px';
+                hArr[index] += oBoxs[i].offsetHeight;
+            }
+        }
+    }
+
+    //根据class获取元素
+    function getByClass(parent,clsName) {
+        var boxArr = [];
+        var oElements = parent.getElementsByTagName('*'); //获取父元素下的所有子元素
+        for(var i=0 ; i<oElements.length ; i++) {
+            if(oElements[i].className == clsName) {
+                boxArr.push(oElements[i]);
+            }
+        }
+        return boxArr;
+    }
+
+    //获取最小高度的索引
+    function getMinhIndex(arr,val) {
+        for(var i in arr) {
+            if(arr[i] == val) {
+                return i;
+            }
+        }
+    }
+
+    //检测是否具备了滚动加载数据块的条件
+    function checkScrollSlide() {
+        var oParent = document.getElementById('main');
+        var oBoxs = getByClass(oParent,'box');
+        var lastBoxH = oBoxs[oBoxs.length - 1].offsetTop + Math.floor(oBoxs[oBoxs.length - 1].offsetHeight / 2);
+        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        var height = document.documentElement.clientHeight || document.body.clientHeight;
+        return (lastBoxH < scrollTop+height) ? true : false;
+    }
+</script>
+</html>
